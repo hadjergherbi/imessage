@@ -1,18 +1,18 @@
 import mongoose from "mongoose";
 
-export async function connectDB(){
-    try{
-        const mongoUri =process.env.MONGO_URI
-        if(!mongoUri){
-            throw new Error ("Mongo_uri required")
+export async function connectDB() {
+    try {
+        const mongoUri = process.env.MONGO_URI;
+
+        if (!mongoUri) {
+            throw new Error("MONGO_URI is required");
         }
-        const conn = await mongoose.connect(mongoUri)
-        console.log("mangodb connected",conn.connection.host)
 
-    }catch(error){
-        console.log("mangodb connection error",error.message)
+        const conn = await mongoose.connect(mongoUri);
+
+        console.log("MongoDB connected:", conn.connection.host);
+    } catch (error) {
+        console.error("MongoDB connection error:", error);
         process.exit(1);
-        
-
     }
 }
