@@ -8,8 +8,8 @@ import path from "path";
 import clerkWebhook from './webhooks/clerk.webhook.js'
 import authRoutes from './routes/auth.route.js'
 import messageRoutes from './routes/message.route.js'
+import { app,server } from './lib/socket.js';
 
-const app =express();
 console.log(process.env.DB_URL);
 const PORT =process.env.PORT;
 const FRONTED_URL =process.env.FRONTED_URL;
@@ -32,7 +32,7 @@ if (fs.existsSync(publicDir)) {
     res.sendFile(path.join(publicDir, "index.html"), (err) => next(err));
   });
 }
-app.listen(PORT,()=> {
+server.listen(PORT,()=> {
     connectDB();
     console.log("server is running on ",PORT);
       if (process.env.NODE_ENV === "production") job.start();
