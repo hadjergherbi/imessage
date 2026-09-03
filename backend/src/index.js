@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import clerkWebhook from './webhooks/clerk.webhook.js'
 import authRoutes from './routes/auth.route.js'
+import messageRoutes from './routes/message.route.js'
 
 const app =express();
 console.log(process.env.DB_URL);
@@ -21,6 +22,8 @@ app.get("/health",(req,res)=>{
     res.status(200).json({ok:true})
 })
 app.use("/api/auth",authRoutes)
+app.use("/api/messages",messageRoutes)
+
 //this is for production buuild
 if (fs.existsSync(publicDir)) {
   app.use(express.static(publicDir));
