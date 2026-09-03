@@ -4,14 +4,14 @@ import { connectDB } from './lib/db.js';
 import { clerkMiddleware } from '@clerk/express'
 import cors from "cors";
 import fs from "fs";
-import path from "path"
-
+import path from "path";
+import clerkWebhook from '../src/webhooks/clerk.webhook.js'
 const app =express();
 console.log(process.env.DB_URL);
 const PORT =process.env.PORT;
 const FRONTED_URL =process.env.FRONTED_URL;
 const publicDir=path.join(process.cwd(),"public")
-
+app.use("/api/webhooks/clerk",express.raw({type:"application/json"}),clerkWebhook)
 app.use(express.json())
 app.use(cors({origin:FRONTED_URL,credentials:true}));
 app.use(clerkMiddleware())
