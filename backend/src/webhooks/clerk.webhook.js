@@ -4,7 +4,7 @@ import {verifyWebhook} from "@clerk/backend/webhooks";
 
 
 const router =express.Router()
-router.post("/",async,async (req,res)=>{
+router.post("/",async (req,res)=>{
     try{
         const signingSecret = process.env.CLERK_WEBHOOK_SIGNIN_SECRET;
     if(!signingSecret){
@@ -28,16 +28,22 @@ const request = new Request("http://internal/webhooks/clerk", {
 const evt = await verifyWebhook(request,{signingSecret});
 if(evt.type === "user.created" || evt.type === "user.updated" ){
     const u=evt.data;
-    const email=
-    u.email.addresses?.find((e)=>e.id===u.primary_email_address_id)?.email_address ??
-    u.email_addresses?.[0]?.email_address;
+    const email =
+  u.email_addresses?.find(
+    (e) => e.id === u.primary_email_address_id
+  )?.email_address ??
+  u.email_addresses?.[0]?.email_address;
     const fullName =
   [u.first_name, u.last_name].filter(Boolean).join(" ") ||
   u.username ||
   u.email?.split("@")[0] ;
-  await User.fondOneAndUpdate({clerkId:u.id},
+  await User.findOneAndUpdate({clerkId:u.id},
     {clerkId:u.id,email,fullName,profilePic:u.image_url},
-    {new:true,upser:true,setDefaultsOnInsert:true},
+   {
+  new: true,
+  upsert: true,
+  setDefaultsOnInsert: true
+},
   )
 
 }
