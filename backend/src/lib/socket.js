@@ -1,32 +1,64 @@
-import express from 'express'
-import http from "http"
-import {Server} from "socket.io"
-//socket io allows the frontends and backend to communicate in real time 
 
-const app =express()
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
 
-const server=http.createServer(app)
-//http server because socket.io needs an actual http server to work with 
-const allowedOrigin =process.env.FRONTED_URL || "http:..localhost:5173";
- const io = new Server(server,{cors:{origin:[allowedOrigin]}});
- function getReceiverSocketId(userId){
-    return userSocketMap[userId]
- }
- //{userid:socketid}
-const userSocketMap={};
- //we have both socket server and http 
- io.on("connection",(socket)=>{
-    const userId=socket.handshake.query.userId
-    if(userId) userSocketMap[userId]=socket.id
-    //send event to everyone
-    io.emit("getOnlineUsers",Object.keys(userSocketMap));
+const app = express();
 
-    socket.on("disconnect",()=>{
-        if(userId) delete userSocketMap[userId]
-        io.emit("getOnlineUsers",Object.keys(userSocketMap))
-    })
-    //used to listen to events
+const server = http.createServer(app);
 
+// URL allowed to connect to Socket.IO
+const allowedOrigin =
+  process.env.FRONTED_URL || "http://localhost:5173";
 
- })
- export {app,server,io,getReceiverSocketId}
+const io = new Server(server, {
+  cors: {
+    origin: [allowedOrigin],
+  },
+});
+
+// Stores:
+// {
+//   userMongoId: socketId
+// }
+const userSocketMap = {};
+
+// Get the socket ID of a specific user
+export function getReceiverSocketId(userId) {
+  return userSocketMap[userId];
+}
+
+// When a user connects
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
+
+  const userId = socket.handshake.query.userId;
+
+  if (userId) {
+    userSocketMap[userId] = socket.id;
+  }
+
+  // Send the list of currently online users
+  io.emit(
+    "getOnlineUsers",
+    Object.keys(userSocketMap)
+  );
+
+  // When the user disconnects
+  socket.on("disconnect", () => {
+    console.log("A user disconnected:", socket.id);
+
+    if (userId) {
+      delete userSocketMap[userId];
+    }
+
+    // Update everyone with the new online users
+    io.emit(
+      "getOnlineUsers",
+      Object.keys(userSocketMap)
+    );
+  });
+});
+
+export { app, server, io };
+

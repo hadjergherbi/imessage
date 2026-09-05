@@ -15,7 +15,7 @@ const messageSchema = new mongoose.Schema(
     },
 
     text: {
-      type: String, // we store the URL
+      type: String,
     },
 
     image: {
@@ -31,6 +31,9 @@ const messageSchema = new mongoose.Schema(
   }
 );
 
-const Message = mongoose.model("Message", messageSchema);
+const Message = mongoose.model(
+  "Message",
+  messageSchema
+);
 
 export default Message;

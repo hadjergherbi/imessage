@@ -1,23 +1,44 @@
-import { getAuth } from "@clerk/express";import User from '../models/user.model.js'
-//if it done successfully we call the checkatuh
-export async function protectRoute(req,res,next){
-try{
-   const {userId}=getAuth(req)
 
-   if(!userId){
-    return res.status(401).json({message :"unauthorized"})
-   }
+import { getAuth } from "@clerk/express";
+import User from "../models/user.model.js";
 
-   const user=await User.findOne({clerkId:userId})
-//from the database search filter with clerk id that matches userId
-if(!user){
-    return res.status(404).json({message:"user profile not synced yet"})
-}
-req.user =user
-next()
-}catch(error){
-    console.log("errror in protectroute middleware",error.message);
-    return res.status(500).json({message:"internal server error"})
+// Protect routes that require an authenticated user
+export async function protectRoute(req, res, next) {
+  try {
+    // Get the Clerk user ID from the authenticated request
+    const { userId } = getAuth(req);
 
-}
+    // No Clerk user = not authenticated
+    if (!userId) {
+      return res.status(401).json({
+        message: "unauthorized",
+      });
+    }
+
+    // Find the corresponding user in MongoDB
+    const user = await User.findOne({
+      clerkId: userId,
+    });
+
+    // Clerk user exists but MongoDB profile doesn't exist yet
+    if (!user) {
+      return res.status(404).json({
+        message: "user profile not synced yet",
+      });
+    }
+
+    // Make the MongoDB user available to the controllers
+    req.user = user;
+
+    next();
+  } catch (error) {
+    console.error(
+      "Error in protectRoute middleware:",
+      error.message
+    );
+
+    return res.status(500).json({
+      message: "internal server error",
+    });
+  }
 }
