@@ -5,6 +5,8 @@ import { useAuthStore } from "../store/useAuthStore";
 
 // John Doe -> JD
 export function getInitials(name) {
+  if (!name) return "?";
+
   return name
     .split(" ")
     .filter(Boolean)

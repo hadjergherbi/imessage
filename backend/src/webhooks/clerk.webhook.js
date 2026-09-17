@@ -8,7 +8,7 @@ router.post("/",async (req,res)=>{
     try{
         const signingSecret = process.env.CLERK_WEBHOOK_SIGNIN_SECRET;
     if(!signingSecret){
-        res.status(503).json({message:" web hook secret not provided"})
+        return res.status(503).json({message:" web hook secret not provided"})
     }
     
     // clerk's verifier expects a Web Request with the raw body; express.raw gives a Buffer.
@@ -36,13 +36,14 @@ if(evt.type === "user.created" || evt.type === "user.updated" ){
     const fullName =
   [u.first_name, u.last_name].filter(Boolean).join(" ") ||
   u.username ||
-  u.email?.split("@")[0] ;
+  email?.split("@")[0] ;
   await User.findOneAndUpdate({clerkId:u.id},
     {clerkId:u.id,email,fullName,profilePic:u.image_url},
    {
   new: true,
   upsert: true,
-  setDefaultsOnInsert: true
+  setDefaultsOnInsert: true,
+  runValidators: true
 },
   )
 

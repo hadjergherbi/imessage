@@ -9,6 +9,7 @@ import clerkWebhook from './webhooks/clerk.webhook.js'
 import authRoutes from './routes/auth.route.js'
 import messageRoutes from './routes/message.route.js'
 import { app,server } from './lib/socket.js';
+import job from './lib/cron.js';
 
 console.log(process.env.DB_URL);
 const PORT =process.env.PORT;
